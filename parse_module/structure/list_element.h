@@ -5,16 +5,6 @@
 #include <boost/serialization/access.hpp>
 
 struct list_element {
-private:
-    friend class boost::serialization::access;
-
-    template<class Archive>
-    void serialize(Archive &ar, const unsigned int version) {
-        ar & next;
-        ar & element;
-    }
-
-public:
     list_element *next;
     int64_t element;
 

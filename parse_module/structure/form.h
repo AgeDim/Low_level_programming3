@@ -2,27 +2,18 @@
 #define LOW_LEVEL_PROGRAMMING2_FORM_H
 
 #include <cstdint>
+#include <string>
 #include "field.h"
 
 enum crud {
     CRUD_INSERT = '+',
     CRUD_DELETE = '-',
     CRUD_FIND = '?',
-    CRUD_UPDATE = '=',
+    CRUD_UPDATE = '='
 };
-
+std::string toString(crud c);
 
 struct form {
-private:
-    friend class boost::serialization::access;
-
-    template<class Archive>
-    void serialize(Archive &ar, const unsigned int version) {
-        ar & crud_operation;
-        ar & tree;
-    }
-
-public:
     enum crud crud_operation;
     struct list_level *tree;
 

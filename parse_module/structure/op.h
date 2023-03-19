@@ -7,16 +7,6 @@
 #include <cstdint>
 
 struct op {
-private:
-    friend class boost::serialization::access;
-
-    template<class Archive>
-    void serialize(Archive &ar, const unsigned int version) {
-        ar & type;
-        ar & value;
-    }
-
-public:
     uint8_t field;
     field_types type;
     types value;

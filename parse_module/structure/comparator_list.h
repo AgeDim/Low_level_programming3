@@ -4,16 +4,6 @@
 #include "comparator.h"
 
 struct comparator_list {
-private:
-    friend class boost::serialization::access;
-
-    template<class Archive>
-    void serialize(Archive &ar, const unsigned int version) {
-        ar & next;
-        ar & value;
-    }
-
-public:
     comparator_list *next;
     comparator *value;
 

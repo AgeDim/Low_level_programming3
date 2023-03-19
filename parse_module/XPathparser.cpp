@@ -10,7 +10,7 @@ form *parse() {
     for_parse = command + 1;
     form *form = parse_operation(command[0]);
     auto *cur_level = new struct list_level(0, 0, P_ROOT);
-    if (*for_parse == '/') {        cout << form<< endl;
+    if (*for_parse == '/') {
         current_state = S_NEXT;
     } else if (*for_parse) {
         cur_level->place = P_FREE;

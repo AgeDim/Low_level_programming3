@@ -8,19 +8,6 @@
 #include "parent.h"
 
 struct list_level {
-private:
-    friend class boost::serialization::access;
-
-    template<class Archive>
-    void serialize(Archive &ar, const unsigned int version) {
-        ar & negative;
-        ar & any;
-        ar & next;
-        ar & value;
-        ar & filters;
-    }
-
-public:
     uint8_t negative;
     uint8_t any;
     parent place;

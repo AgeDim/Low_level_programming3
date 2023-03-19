@@ -3,16 +3,6 @@
 #include "filter.h"
 
 struct filter_list {
-private:
-    friend class boost::serialization::access;
-
-    template<class Archive>
-    void serialize(Archive &ar, const unsigned int version) {
-        ar & next;
-        ar & value;
-    }
-
-public:
     filter_list *next;
     filter *value;
 
