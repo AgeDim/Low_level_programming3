@@ -304,23 +304,6 @@ class view_t: public ::xml_schema::type
   void
   level (const level_sequence& s);
 
-  // filter
-  //
-  typedef ::filter_t filter_type;
-  typedef ::xsd::cxx::tree::sequence< filter_type > filter_sequence;
-  typedef filter_sequence::iterator filter_iterator;
-  typedef filter_sequence::const_iterator filter_const_iterator;
-  typedef ::xsd::cxx::tree::traits< filter_type, char > filter_traits;
-
-  const filter_sequence&
-  filter () const;
-
-  filter_sequence&
-  filter ();
-
-  void
-  filter (const filter_sequence& s);
-
   // Constructors.
   //
   view_t (const operation_type&);
@@ -353,25 +336,24 @@ class view_t: public ::xml_schema::type
   protected:
   ::xsd::cxx::tree::one< operation_type > operation_;
   level_sequence level_;
-  filter_sequence filter_;
 };
 
 class level: public ::xml_schema::type
 {
   public:
-  // level1
+  // level_id
   //
-  typedef ::xml_schema::int_ level1_type;
-  typedef ::xsd::cxx::tree::traits< level1_type, char > level1_traits;
+  typedef ::xml_schema::int_ level_id_type;
+  typedef ::xsd::cxx::tree::traits< level_id_type, char > level_id_traits;
 
-  const level1_type&
-  level1 () const;
+  const level_id_type&
+  level_id () const;
 
-  level1_type&
-  level1 ();
+  level_id_type&
+  level_id ();
 
   void
-  level1 (const level1_type& x);
+  level_id (const level_id_type& x);
 
   // relation
   //
@@ -432,9 +414,26 @@ class level: public ::xml_schema::type
   void
   any_id (const any_id_type& x);
 
+  // filter
+  //
+  typedef ::filter_t filter_type;
+  typedef ::xsd::cxx::tree::sequence< filter_type > filter_sequence;
+  typedef filter_sequence::iterator filter_iterator;
+  typedef filter_sequence::const_iterator filter_const_iterator;
+  typedef ::xsd::cxx::tree::traits< filter_type, char > filter_traits;
+
+  const filter_sequence&
+  filter () const;
+
+  filter_sequence&
+  filter ();
+
+  void
+  filter (const filter_sequence& s);
+
   // Constructors.
   //
-  level (const level1_type&,
+  level (const level_id_type&,
          const relation_type&,
          const is_negative_lvl_type&,
          const id_type&,
@@ -466,11 +465,12 @@ class level: public ::xml_schema::type
          ::xml_schema::flags);
 
   protected:
-  ::xsd::cxx::tree::one< level1_type > level1_;
+  ::xsd::cxx::tree::one< level_id_type > level_id_;
   ::xsd::cxx::tree::one< relation_type > relation_;
   ::xsd::cxx::tree::one< is_negative_lvl_type > is_negative_lvl_;
   ::xsd::cxx::tree::one< id_type > id_;
   ::xsd::cxx::tree::one< any_id_type > any_id_;
+  filter_sequence filter_;
 };
 
 class filter_t: public ::xml_schema::type

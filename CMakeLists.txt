@@ -18,4 +18,5 @@ target_link_libraries(client xerces-c PARSE_MODULE)
 
 
 
-add_executable(server server/server.cpp)
+add_executable(server server/server.cpp ${CPP_FILES_COMMON} ${H_FILES_COMMON})
+target_link_libraries(server xerces-c)

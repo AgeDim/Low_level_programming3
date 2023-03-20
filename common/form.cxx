@@ -85,44 +85,26 @@ level (const level_sequence& s)
   this->level_ = s;
 }
 
-const view_t::filter_sequence& view_t::
-filter () const
-{
-  return this->filter_;
-}
-
-view_t::filter_sequence& view_t::
-filter ()
-{
-  return this->filter_;
-}
-
-void view_t::
-filter (const filter_sequence& s)
-{
-  this->filter_ = s;
-}
-
 
 // level
 // 
 
-const level::level1_type& level::
-level1 () const
+const level::level_id_type& level::
+level_id () const
 {
-  return this->level1_.get ();
+  return this->level_id_.get ();
 }
 
-level::level1_type& level::
-level1 ()
+level::level_id_type& level::
+level_id ()
 {
-  return this->level1_.get ();
+  return this->level_id_.get ();
 }
 
 void level::
-level1 (const level1_type& x)
+level_id (const level_id_type& x)
 {
-  this->level1_.set (x);
+  this->level_id_.set (x);
 }
 
 const level::relation_type& level::
@@ -201,6 +183,24 @@ void level::
 any_id (const any_id_type& x)
 {
   this->any_id_.set (x);
+}
+
+const level::filter_sequence& level::
+filter () const
+{
+  return this->filter_;
+}
+
+level::filter_sequence& level::
+filter ()
+{
+  return this->filter_;
+}
+
+void level::
+filter (const filter_sequence& s)
+{
+  this->filter_ = s;
 }
 
 
@@ -429,8 +429,7 @@ view_t::
 view_t (const operation_type& operation)
 : ::xml_schema::type (),
   operation_ (operation, this),
-  level_ (this),
-  filter_ (this)
+  level_ (this)
 {
 }
 
@@ -440,8 +439,7 @@ view_t (const view_t& x,
         ::xml_schema::container* c)
 : ::xml_schema::type (x, f, c),
   operation_ (x.operation_, f, this),
-  level_ (x.level_, f, this),
-  filter_ (x.filter_, f, this)
+  level_ (x.level_, f, this)
 {
 }
 
@@ -451,8 +449,7 @@ view_t (const ::xercesc::DOMElement& e,
         ::xml_schema::container* c)
 : ::xml_schema::type (e, f | ::xml_schema::flags::base, c),
   operation_ (this),
-  level_ (this),
-  filter_ (this)
+  level_ (this)
 {
   if ((f & ::xml_schema::flags::base) == 0)
   {
@@ -496,17 +493,6 @@ parse (::xsd::cxx::xml::dom::parser< char >& p,
       continue;
     }
 
-    // filter
-    //
-    if (n.name () == "filter" && n.namespace_ ().empty ())
-    {
-      ::std::auto_ptr< filter_type > r (
-        filter_traits::create (i, f, this));
-
-      this->filter_.push_back (r);
-      continue;
-    }
-
     break;
   }
 
@@ -533,7 +519,6 @@ operator= (const view_t& x)
     static_cast< ::xml_schema::type& > (*this) = x;
     this->operation_ = x.operation_;
     this->level_ = x.level_;
-    this->filter_ = x.filter_;
   }
 
   return *this;
@@ -548,17 +533,18 @@ view_t::
 //
 
 level::
-level (const level1_type& level1,
+level (const level_id_type& level_id,
        const relation_type& relation,
        const is_negative_lvl_type& is_negative_lvl,
        const id_type& id,
        const any_id_type& any_id)
 : ::xml_schema::type (),
-  level1_ (level1, this),
+  level_id_ (level_id, this),
   relation_ (relation, this),
   is_negative_lvl_ (is_negative_lvl, this),
   id_ (id, this),
-  any_id_ (any_id, this)
+  any_id_ (any_id, this),
+  filter_ (this)
 {
 }
 
@@ -567,11 +553,12 @@ level (const level& x,
        ::xml_schema::flags f,
        ::xml_schema::container* c)
 : ::xml_schema::type (x, f, c),
-  level1_ (x.level1_, f, this),
+  level_id_ (x.level_id_, f, this),
   relation_ (x.relation_, f, this),
   is_negative_lvl_ (x.is_negative_lvl_, f, this),
   id_ (x.id_, f, this),
-  any_id_ (x.any_id_, f, this)
+  any_id_ (x.any_id_, f, this),
+  filter_ (x.filter_, f, this)
 {
 }
 
@@ -580,11 +567,12 @@ level (const ::xercesc::DOMElement& e,
        ::xml_schema::flags f,
        ::xml_schema::container* c)
 : ::xml_schema::type (e, f | ::xml_schema::flags::base, c),
-  level1_ (this),
+  level_id_ (this),
   relation_ (this),
   is_negative_lvl_ (this),
   id_ (this),
-  any_id_ (this)
+  any_id_ (this),
+  filter_ (this)
 {
   if ((f & ::xml_schema::flags::base) == 0)
   {
@@ -603,13 +591,13 @@ parse (::xsd::cxx::xml::dom::parser< char >& p,
     const ::xsd::cxx::xml::qualified_name< char > n (
       ::xsd::cxx::xml::dom::name< char > (i));
 
-    // level1
+    // level_id
     //
-    if (n.name () == "level1" && n.namespace_ ().empty ())
+    if (n.name () == "level_id" && n.namespace_ ().empty ())
     {
-      if (!level1_.present ())
+      if (!level_id_.present ())
       {
-        this->level1_.set (level1_traits::create (i, f, this));
+        this->level_id_.set (level_id_traits::create (i, f, this));
         continue;
       }
     }
@@ -661,13 +649,24 @@ parse (::xsd::cxx::xml::dom::parser< char >& p,
       }
     }
 
+    // filter
+    //
+    if (n.name () == "filter" && n.namespace_ ().empty ())
+    {
+      ::std::auto_ptr< filter_type > r (
+        filter_traits::create (i, f, this));
+
+      this->filter_.push_back (r);
+      continue;
+    }
+
     break;
   }
 
-  if (!level1_.present ())
+  if (!level_id_.present ())
   {
     throw ::xsd::cxx::tree::expected_element< char > (
-      "level1",
+      "level_id",
       "");
   }
 
@@ -713,11 +712,12 @@ operator= (const level& x)
   if (this != &x)
   {
     static_cast< ::xml_schema::type& > (*this) = x;
-    this->level1_ = x.level1_;
+    this->level_id_ = x.level_id_;
     this->relation_ = x.relation_;
     this->is_negative_lvl_ = x.is_negative_lvl_;
     this->id_ = x.id_;
     this->any_id_ = x.any_id_;
+    this->filter_ = x.filter_;
   }
 
   return *this;
@@ -1478,20 +1478,6 @@ operator<< (::xercesc::DOMElement& e, const view_t& i)
 
     s << *b;
   }
-
-  // filter
-  //
-  for (view_t::filter_const_iterator
-       b (i.filter ().begin ()), n (i.filter ().end ());
-       b != n; ++b)
-  {
-    ::xercesc::DOMElement& s (
-      ::xsd::cxx::xml::dom::create_element (
-        "filter",
-        e));
-
-    s << *b;
-  }
 }
 
 void
@@ -1499,15 +1485,15 @@ operator<< (::xercesc::DOMElement& e, const level& i)
 {
   e << static_cast< const ::xml_schema::type& > (i);
 
-  // level1
+  // level_id
   //
   {
     ::xercesc::DOMElement& s (
       ::xsd::cxx::xml::dom::create_element (
-        "level1",
+        "level_id",
         e));
 
-    s << i.level1 ();
+    s << i.level_id ();
   }
 
   // relation
@@ -1552,6 +1538,20 @@ operator<< (::xercesc::DOMElement& e, const level& i)
         e));
 
     s << i.any_id ();
+  }
+
+  // filter
+  //
+  for (level::filter_const_iterator
+       b (i.filter ().begin ()), n (i.filter ().end ());
+       b != n; ++b)
+  {
+    ::xercesc::DOMElement& s (
+      ::xsd::cxx::xml::dom::create_element (
+        "filter",
+        e));
+
+    s << *b;
   }
 }
 

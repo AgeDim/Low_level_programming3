@@ -28,8 +28,8 @@ view_t fill_response(form *form) {
     struct list_level *list_level = form->tree;
     struct filter_list *list_filter;
     struct comparator_list *comparator_list;
+    int levels = 1;
     while (list_level != nullptr) {
-        int levels = 1;
         int any = 0;
         int id = 0;
         std::string relation;
@@ -55,7 +55,6 @@ view_t fill_response(form *form) {
         }
         lvl_negative = list_level->negative;
         level t = level(levels, relation, lvl_negative, id, any);
-        response.level().push_back(t);
         list_filter = list_level->filters;
         while (list_filter != nullptr) {
             int filters_id = 1;
@@ -66,9 +65,6 @@ view_t fill_response(form *form) {
                 int comparator_id = 1;
                 int negative_comparator = 0;
                 int field1 = comparator_list->value->op1->field;
-                comparator *temp1 = comparator_list->value;
-                op *temp2 = temp1->op1;
-                unsigned char temp3 = temp2->field;
                 int field2 = comparator_list->value->op2->field;
                 std::string oper1;
                 std::string oper2;
@@ -86,10 +82,11 @@ view_t fill_response(form *form) {
                 filters.comparator().push_back(comp);
                 comparator_list = comparator_list->next;
             }
-            response.filter().push_back(filters);
+            t.filter().push_back(filters);
             comparator_list = list_filter->value->comparators;
             list_filter = list_filter->next;
             filters_id++;
+            response.level().push_back(t);
         }
         list_level = list_level->next;
         levels++;
