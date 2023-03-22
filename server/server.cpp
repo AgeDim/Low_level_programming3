@@ -164,20 +164,86 @@ response_t selectNode(database *bd, view_t *form) {
     body_t body;
     vector<string> p;
     node res_node;
-    if (lvl.front().any_id() == 1) {
-        for (int i = lvl.size() - 1; i > 0; i--) {
-            p.push_back(lvl[i].id());
-        }
-        auto parent_id = bd->meta_data.pos.at(path(p));
-        auto children = bd->meta_data.child.at(parent_id);
+    if (!lvl[1].filter().empty()) {
 
-        vector<node> nodes;
-        vector<node> result_nodes;
-        for (auto &child: children) {
-            auto path = bd->meta_data.path.at(child);
-            nodes.push_back(bd->find_node(to_vector(path)));
-        }
-        for (auto no: nodes) {
+    } else {
+        if (lvl.front().any_id() == 1) {
+            for (int i = lvl.size() - 1; i > 0; i--) {
+                p.push_back(lvl[i].id());
+            }
+            auto parent_id = bd->meta_data.pos.at(path(p));
+            auto children = bd->meta_data.child.at(parent_id);
+
+            vector<node> nodes;
+            vector<node> result_nodes;
+            for (auto &child: children) {
+                auto path = bd->meta_data.path.at(child);
+                nodes.push_back(bd->find_node(to_vector(path)));
+            }
+            for (auto no: nodes) {
+                vector<bool> filter;
+                bool conditions = false;
+                for (auto fil: lvl[0].filter()) {
+                    for (auto cond: fil.comparator()) {
+                        auto left = cond.operator1().operator_();
+                        auto right = cond.operator2().operator_();
+                        auto operation = cond.operation();
+                        switch (operation[0]) {
+                            case '=':
+                                if (no.getAttr()[left].get_value() == right) {
+                                    conditions = true;
+                                }
+                                break;
+                            case '<':
+                                if (no.getAttr()[left].get_value() < right) {
+                                    conditions = true;
+                                }
+                                break;
+                            case '>':
+                                if (no.getAttr()[left].get_value() > right) {
+                                    conditions = true;
+                                }
+                                break;
+                        }
+                        filter.push_back(conditions);
+                    }
+                }
+                if (!std::any_of(filter.begin(), filter.end(), [](bool b) { return !b; })) {
+                    result_nodes.push_back(no);
+                    request = "select done";
+                    status = 200;
+                    finished = true;
+                }
+            }
+            for (auto &nod: result_nodes) {
+                node_t node = node_t(nod.name);
+                unordered_map<string, attributes> attr = nod.getAttr();
+                for (auto &pair: attr) {
+                    node.attr_value().push_back(pair.second.get_value());
+                    node.attr_name().push_back(pair.first);
+                }
+                body.nodes().push_back(node);
+            }
+            auto path = bd->meta_data.path.at(parent_id);;
+            if (result_nodes.empty()) {
+                request = "select done, 0 matches";
+                status = 200;
+                finished = true;
+            }
+            node_t nd = node_t(bd->find_node(to_vector(path)).name);
+            nd.attr_name().push_back("parent");
+            nd.attr_value().push_back("true");
+            for (auto pair: bd->find_node(to_vector(path)).getAttr()) {
+                nd.attr_value().push_back(pair.second.get_value());
+                nd.attr_name().push_back(pair.first);
+            }
+            body.nodes().push_back(nd);
+
+        } else {
+            for (int i = lvl.size() - 1; i >= 0; i--) {
+                p.push_back(lvl[i].id());
+            }
+            node nd = bd->find_node(p);
             vector<bool> filter;
             bool conditions = false;
             for (auto fil: lvl[0].filter()) {
@@ -187,17 +253,17 @@ response_t selectNode(database *bd, view_t *form) {
                     auto operation = cond.operation();
                     switch (operation[0]) {
                         case '=':
-                            if (no.getAttr()[left].get_value() == right) {
+                            if (nd.getAttr()[left].get_value() == right) {
                                 conditions = true;
                             }
                             break;
                         case '<':
-                            if (no.getAttr()[left].get_value() < right) {
+                            if (nd.getAttr()[left].get_value() < right) {
                                 conditions = true;
                             }
                             break;
                         case '>':
-                            if (no.getAttr()[left].get_value() > right) {
+                            if (nd.getAttr()[left].get_value() > right) {
                                 conditions = true;
                             }
                             break;
@@ -206,73 +272,21 @@ response_t selectNode(database *bd, view_t *form) {
                 }
             }
             if (!std::any_of(filter.begin(), filter.end(), [](bool b) { return !b; })) {
-                result_nodes.push_back(no);
+                unordered_map<string, attributes> attr = nd.getAttr();
+                node_t node = node_t(nd.name);
+                for (auto &pair: attr) {
+                    node.attr_value().push_back(pair.second.get_value());
+                    node.attr_name().push_back(pair.first);
+                }
+                body.nodes().push_back(node);
                 request = "select done";
                 status = 200;
                 finished = true;
+            } else {
+                request = "select done, 0 matches";
+                status = 200;
+                finished = true;
             }
-        }
-        for (auto &nod: result_nodes) {
-            node_t node = node_t(nod.name);
-            unordered_map<string, attributes> attr = nod.getAttr();
-            for (auto &pair: attr) {
-                node.attr_value().push_back(pair.second.get_value());
-                node.attr_name().push_back(pair.first);
-            }
-            body.nodes().push_back(node);
-        }
-        if (result_nodes.empty()) {
-            request = "select done, 0 matches";
-            status = 200;
-            finished = true;
-        }
-    } else {
-        for (int i = lvl.size() - 1; i >= 0; i--) {
-            p.push_back(lvl[i].id());
-        }
-        node nd = bd->find_node(p);
-        vector<bool> filter;
-        bool conditions = false;
-        for (auto fil: lvl[0].filter()) {
-            for (auto cond: fil.comparator()) {
-                auto left = cond.operator1().operator_();
-                auto right = cond.operator2().operator_();
-                auto operation = cond.operation();
-                switch (operation[0]) {
-                    case '=':
-                        if (nd.getAttr()[left].get_value() == right) {
-                            conditions = true;
-                        }
-                        break;
-                    case '<':
-                        if (nd.getAttr()[left].get_value() < right) {
-                            conditions = true;
-                        }
-                        break;
-                    case '>':
-                        if (nd.getAttr()[left].get_value() > right) {
-                            conditions = true;
-                        }
-                        break;
-                }
-                filter.push_back(conditions);
-            }
-        }
-        if (!std::any_of(filter.begin(), filter.end(), [](bool b) { return !b; })) {
-            unordered_map<string, attributes> attr = nd.getAttr();
-            node_t node = node_t(nd.name);
-            for (auto &pair: attr) {
-                node.attr_value().push_back(pair.second.get_value());
-                node.attr_name().push_back(pair.first);
-            }
-            body.nodes().push_back(node);
-            request = "select done";
-            status = 200;
-            finished = true;
-        } else {
-            request = "select done, 0 matches";
-            status = 200;
-            finished = true;
         }
     }
 
@@ -335,7 +349,7 @@ int main(int argc, char *argv[]) {
         exit(0);
     }
     int port = atoi(argv[1]);
-    char msg[5000];
+    char msg[100000];
     sockaddr_in servAddr{};
     bzero((char *) &servAddr, sizeof(servAddr));
     servAddr.sin_family = AF_INET;
