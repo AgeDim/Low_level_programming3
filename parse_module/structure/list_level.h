@@ -12,7 +12,7 @@ struct list_level {
     uint8_t any;
     parent place;
     list_level *next = nullptr;
-    list_element value = list_element(0);
+    list_element value = list_element("");
     filter_list *filters = nullptr;
 
     list_level(uint8_t negative, uint8_t any, parent parent);

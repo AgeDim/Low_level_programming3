@@ -2,14 +2,13 @@
 #define LOW_LEVEL_PROGRAMMING2_LIST_ELEMENT_H
 
 #include <cstdint>
-#include <boost/serialization/access.hpp>
+#include <string>
 
 struct list_element {
     list_element *next;
-    int64_t element;
+    std::string element;
 
-    explicit list_element(int64_t id);
-    list_element();
+    explicit list_element(std::string);
 };
 
 #endif //LOW_LEVEL_PROGRAMMING2_LIST_ELEMENT_H

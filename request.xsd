@@ -8,15 +8,15 @@
     </xs:complexType>
     <xs:complexType name="body_t">
         <xs:sequence>
-            <xs:element name="nodes" type="node_t" maxOccurs="10" minOccurs="0"/>
+            <xs:element name="nodes" type="node_t" maxOccurs="50" minOccurs="0"/>
         </xs:sequence>
     </xs:complexType>
 
     <xs:complexType name="node_t">
         <xs:sequence>
             <xs:element name="name" type="xs:string"/>
-            <xs:element name="attr_name" type="xs:string" maxOccurs="5" minOccurs="0"/>
-            <xs:element name="attr_value" type="xs:string" maxOccurs="5" minOccurs="0"/>
+            <xs:element name="attr_name" type="xs:string" maxOccurs="10" minOccurs="0"/>
+            <xs:element name="attr_value" type="xs:string" maxOccurs="10" minOccurs="0"/>
         </xs:sequence>
     </xs:complexType>
 

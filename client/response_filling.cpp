@@ -51,7 +51,7 @@ view_t fill_response(form *form) {
         if (list_level->any == 1) {
             any = 1;
         } else {
-            id = std::to_string(list_level->value.element);
+            id = list_level->value.element;
         }
         lvl_negative = list_level->negative;
         level t = level(levels, relation, lvl_negative, id, any);

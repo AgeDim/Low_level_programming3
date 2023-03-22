@@ -20,14 +20,14 @@ enum states name_do(char **string, struct list_level *level) {
     if (**string == '!' && *(*string)++) { negative = 1; }
     if (**string == '*' && *(*string)++) { any = 1; }
     if (!any) {
-        if (**string && **string > '0' && **string < '9') {
+        if (**string && (**string >= 'a' && **string <= 'z'|| **string >= '0' && **string <= '9')) {
             char *temp_p = *string;
             size_t len = 0;
-            while (temp_p[len] >= '0' && temp_p[len] <= '9') len++;
+            while ((temp_p[len] >= 'a' && temp_p[len] <= 'z') ||(temp_p[len] >= '0' && temp_p[len] <= '9')) len++;
             temp_p = *string;
-            int64_t id = 0;
+            std::string id;
             for (size_t iter = 0; iter < len; iter++) {
-                id = 10 * id + temp_p[iter] - '0';
+                id = id + temp_p[iter];
             }
             level->value = list_element(id);
             level->negative = negative;
@@ -164,7 +164,7 @@ states (*op_table[4])(char **, struct list_level *) = {
 };
 
 form *parse_operation(char op_char) {
-    if (op_char != '-' && op_char != '+' && op_char != '?' && op_char != '=') return nullptr;
+    if (op_char != '-' && op_char != '+' && op_char != '?' && op_char != '=' && op_char != '++') return nullptr;
     form *result = new struct form((crud) op_char);
     return result;
 }

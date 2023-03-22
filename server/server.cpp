@@ -148,7 +148,6 @@ insertNode(database *bd, view_t *form) {
         }
     }
     bd->add_node(p, n);
-    node z = bd->find_node({"1", "2"});
     string request = "Insert done!";
     int status = 200;
     bool finished = true;

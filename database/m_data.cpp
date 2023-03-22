@@ -23,8 +23,8 @@ m_data::m_data() {
     this->pos = unordered_map<string, int32_t>();
     this->path = unordered_map<int32_t, string>();
     child[0] = unordered_set<int32_t>();
-    path[0] = "/1";
-    pos["/1"] = 0;
+    path[0] = "/root";
+    pos["/root"] = 0;
 }
 
 void m_data::serialize(const std::string &file, std::ios::openmode mode) {
