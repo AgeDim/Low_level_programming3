@@ -388,7 +388,7 @@ class level: public ::xml_schema::type
 
   // id
   //
-  typedef ::xml_schema::int_ id_type;
+  typedef ::xml_schema::string id_type;
   typedef ::xsd::cxx::tree::traits< id_type, char > id_traits;
 
   const id_type&
@@ -399,6 +399,9 @@ class level: public ::xml_schema::type
 
   void
   id (const id_type& x);
+
+  void
+  id (::std::auto_ptr< id_type > p);
 
   // any_id
   //

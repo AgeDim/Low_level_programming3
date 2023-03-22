@@ -167,6 +167,12 @@ id (const id_type& x)
   this->id_.set (x);
 }
 
+void level::
+id (::std::auto_ptr< id_type > x)
+{
+  this->id_.set (x);
+}
+
 const level::any_id_type& level::
 any_id () const
 {
@@ -631,9 +637,12 @@ parse (::xsd::cxx::xml::dom::parser< char >& p,
     //
     if (n.name () == "id" && n.namespace_ ().empty ())
     {
+      ::std::auto_ptr< id_type > r (
+        id_traits::create (i, f, this));
+
       if (!id_.present ())
       {
-        this->id_.set (id_traits::create (i, f, this));
+        this->id_.set (r);
         continue;
       }
     }
