@@ -32,6 +32,7 @@ struct node {
     void add(string key, attributes value);
 
     unordered_map<string, attributes> getAttr();
+    void setAttr(unordered_map<string, attributes> attr);
 
     void serialize(const string &file, int32_t position);
 

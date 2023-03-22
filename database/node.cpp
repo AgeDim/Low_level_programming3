@@ -17,6 +17,10 @@ unordered_map<string, attributes> node::getAttr(){
     return this->attribute;
 }
 
+void node::setAttr(unordered_map<string, attributes> attr) {
+    this->attribute = attr;
+}
+
 void node::serialize(const string& file, int32_t position) {
     ofstream fout(file, BOI);
     fout.seekp(META + (KB4 * position));

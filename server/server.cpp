@@ -13,6 +13,9 @@
 response_t deleteNode(database *bd, view_t *form) {
     auto lvl = form->level();
     vector<string> p;
+    string request = "Delete done!";
+    int status = 200;
+    bool finished = true;
     if (lvl.front().any_id() == 1) {
         for (int i = lvl.size() - 1; i > 0; i--) {
             p.push_back(lvl[i].id());
@@ -23,18 +26,100 @@ response_t deleteNode(database *bd, view_t *form) {
         vector<node> nodes;
         for (auto &child: children) {
             auto path = bd->meta_data.path.at(child);
-            bd->delete_node(to_vector(path));
+            node temp = bd->find_node(to_vector(path));
+            vector<bool> filter;
+            bool conditions = false;
+            for (auto fil: lvl[0].filter()) {
+                for (auto cond: fil.comparator()) {
+                    auto left = cond.operator1().operator_();
+                    auto right = cond.operator2().operator_();
+                    auto operation = cond.operation();
+                    switch (operation[0]) {
+                        case '=':
+                            if (temp.getAttr()[left].get_value() == right) {
+                                conditions = true;
+                            }
+                            break;
+                        case '<':
+                            if (temp.getAttr()[left].get_value() < right) {
+                                conditions = true;
+                            }
+                            break;
+                        case '>':
+                            if (temp.getAttr()[left].get_value() > right) {
+                                conditions = true;
+                            }
+                            break;
+                    }
+                    filter.push_back(conditions);
+                }
+            }
+            if (!std::any_of(filter.begin(), filter.end(), [](bool b) { return !b; })) {
+                bd->delete_node(to_vector(path));
+                request = "delete done";
+                status = 200;
+                finished = true;
+            } else {
+                nodes.push_back(temp);
+            }
+
+        }
+        if (nodes.empty()) {
+            request = "delete done";
+            status = 200;
+            finished = true;
+        } else {
+            request = "part of nodes don't delete!";
+            status = 200;
+            finished = true;
         }
     } else {
         for (int i = lvl.size() - 1; i >= 0; i--) {
             p.push_back(lvl[i].id());
         }
         node nn = bd->find_node(p);
-        bd->delete_node(p);
+
+        vector<bool> filter;
+        bool conditions = false;
+        for (auto fil: lvl[0].filter()) {
+            for (auto cond: fil.comparator()) {
+                auto left = cond.operator1().operator_();
+                auto right = cond.operator2().operator_();
+                auto operation = cond.operation();
+                switch (operation[0]) {
+                    case '=':
+                        if (nn.getAttr()[left].get_value() == right) {
+                            conditions = true;
+                        }
+                        break;
+                    case '<':
+                        if (nn.getAttr()[left].get_value() < right) {
+                            conditions = true;
+                        }
+                        break;
+                    case '>':
+                        if (nn.getAttr()[left].get_value() > right) {
+                            conditions = true;
+                        }
+                        break;
+                }
+                filter.push_back(conditions);
+            }
+        }
+        if (!std::any_of(filter.begin(), filter.end(), [](bool b) { return !b; })) {
+            request = "delete done";
+            status = 200;
+            finished = true;
+            bd->delete_node(p);
+        } else {
+            request = "delete failed";
+            status = 200;
+            finished = true;
+        }
+
+
     }
-    string request = "Delete done!";
-    int status = 200;
-    bool finished = true;
+
     response_t resp_res = response_t(status, request, finished);
     return resp_res;
 }
@@ -120,8 +205,11 @@ response_t selectNode(database *bd, view_t *form) {
                     filter.push_back(conditions);
                 }
             }
-            if(!std::any_of(filter.begin(), filter.end(), [](bool b) { return !b; })){
+            if (!std::any_of(filter.begin(), filter.end(), [](bool b) { return !b; })) {
                 result_nodes.push_back(no);
+                request = "select done";
+                status = 200;
+                finished = true;
             }
         }
         for (auto &nod: result_nodes) {
@@ -132,6 +220,11 @@ response_t selectNode(database *bd, view_t *form) {
                 node.attr_name().push_back(pair.first);
             }
             body.nodes().push_back(node);
+        }
+        if (result_nodes.empty()) {
+            request = "select done, 0 matches";
+            status = 200;
+            finished = true;
         }
     } else {
         for (int i = lvl.size() - 1; i >= 0; i--) {
@@ -189,6 +282,50 @@ response_t selectNode(database *bd, view_t *form) {
     return resp_res;
 }
 
+response_t updateNode(database *bd, view_t *form) {
+    string request;
+    int status;
+    bool finished;
+    auto lvl = form->level();
+    auto filters = lvl.front().filter();
+    vector<string> p;
+    for (int i = lvl.size() - 1; i >= 0; i--) {
+        p.push_back(lvl[i].id());
+    }
+    bool flag = false;
+    for (auto fil: lvl[0].filter()) {
+        for (auto cond: fil.comparator()) {
+            auto left = cond.operator1().operator_();
+            auto right = cond.operator2().operator_();
+            auto operation = cond.operation();
+            if (operation[0] == '=') {
+                node nd = bd->find_node(p);
+                unordered_map<string, attributes> attr = nd.getAttr();
+                unordered_map<string, attributes> result_attr;
+                for (auto pair: attr) {
+                    if (pair.first == left) {
+                        pair.second = attributes(right.c_str());
+                        flag = true;
+                    }
+                    result_attr.insert(std::make_pair(pair.first, pair.second));
+                }
+                nd.setAttr(result_attr);
+                bd->update_node(p, nd);
+            }
+        }
+    }
+    if (flag) {
+        request = "node was updated!";
+        status = 200;
+        finished = true;
+    } else {
+        request = "node don't updated!";
+        status = 200;
+        finished = true;
+    }
+    response_t resp_res = response_t(status, request, finished);
+    return resp_res;
+}
 
 int main(int argc, char *argv[]) {
     database database(argv[2]);
@@ -261,6 +398,11 @@ int main(int argc, char *argv[]) {
             resp(oss, resp_res, map);
             bytesWritten += write(newSd, oss.str().c_str(), strlen(oss.str().c_str()));
             cout << "select Done!";
+        } else if (operation[0] == '=') {
+            response_t resp_res = updateNode(&database, &result);
+            resp(oss, resp_res, map);
+            bytesWritten += write(newSd, oss.str().c_str(), strlen(oss.str().c_str()));
+            cout << "update Done!";
         }
     }
     gettimeofday(&end1, nullptr);
