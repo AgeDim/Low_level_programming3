@@ -1,12 +1,10 @@
 #include <iostream>
 #include "XPathparser.h"
 
-#define MAX_COMMAND_SIZE 1024
 using namespace std;
-form *parse() {
-    char command[MAX_COMMAND_SIZE], *for_parse;
+form *parse(char command[2048]) {
+    char *for_parse;
     enum states current_state;
-    cin >> command;
     for_parse = command + 1;
     form *form = parse_operation(command[0]);
     auto *cur_level = new struct list_level(0, 0, P_ROOT);

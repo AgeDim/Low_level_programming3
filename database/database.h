@@ -32,11 +32,11 @@ struct database {
     void delete_node(const vector<string> &p);
 
 private:
-    void del_node(int32_t pos);
+    void del_node(int64_t pos);
 
-    void add_data(const vector<string> &p, int32_t pos);
+    void add_data(const vector<string> &p, int64_t pos);
 
-    void delete_data(int32_t pos);
+    void delete_data(int64_t pos);
 
     void add_valid(const vector<string> &par, const node &node);
 

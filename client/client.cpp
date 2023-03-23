@@ -8,6 +8,7 @@
 #include <cstring>
 #include <netdb.h>
 #include <sys/time.h>
+#include <fstream>
 
 #include "../parse_module/XPathparser.h"
 #include "../common/form.hxx"
@@ -26,7 +27,7 @@ int main(int argc, char *argv[]) {
     char *serverIp = argv[1];
     int port = atoi(argv[2]);
     //create a message buffer
-    char msg[100000];
+    char msg[50000];
     //setup a socket and connection tools
     struct hostent *host = gethostbyname(serverIp);
     sockaddr_in sendSockAddr;
@@ -47,8 +48,26 @@ int main(int argc, char *argv[]) {
     int bytesRead, bytesWritten = 0;
     struct timeval start1, end1;
     gettimeofday(&start1, nullptr);
+    std::ifstream file("../result");
+    std::string line;
+    vector<string> code;
+    while (std::getline(file, line)) {
+        code.push_back(line);
+    }
+    file.close();
     while (1) {
-        form *tree = parse();
+        form *tree = NULL;
+        if (!code.empty()) {
+            string tmp = code.front();
+            code.erase(code.begin());
+            char myArray[tmp.length() + 1];
+            strcpy(myArray, tmp.c_str());
+            tree = parse(myArray);
+        } else {
+            char command[2048];
+            cin >> command;
+            tree = parse(command);
+        }
         view_t result = fill_response(tree);
         xml_schema::namespace_infomap map;
         map[""].name = "";
@@ -57,10 +76,10 @@ int main(int argc, char *argv[]) {
         response(oss, result, map);
         memset(&msg, 0, sizeof(msg));//clear the buffer
         strcpy(msg, oss.str().c_str());
-        bytesWritten += send(clientSd, (char *) &msg, strlen(msg), 0);
+        bytesWritten = send(clientSd, (char *) &msg, strlen(msg), 0);
         cout << "Awaiting server response..." << endl;
         memset(&msg, 0, sizeof(msg));//clear the buffer
-        bytesRead += recv(clientSd, (char *) &msg, sizeof(msg), 0);
+        bytesRead = recv(clientSd, (char *) &msg, sizeof(msg), 0);
         std::istringstream iss(msg);
         xml_schema::properties properties;
         properties.no_namespace_schema_location("../request.xsd");
@@ -71,7 +90,8 @@ int main(int argc, char *argv[]) {
             for (auto &node: nodes) {
                 cout << "Node name:" << node.name() << endl;
                 for (int i = 0; i < node.attr_name().size(); i++) {
-                    cout << "---Attribute " << i << " name:" << node.attr_name()[i] << " ----value:" << node.attr_value()[i] << endl;
+                    cout << "---Attribute " << i << " name:" << node.attr_name()[i] << " ----value:"
+                         << node.attr_value()[i] << endl;
                 }
             }
         }

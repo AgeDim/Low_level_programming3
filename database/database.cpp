@@ -18,13 +18,13 @@ void database::save() {
     meta_data.serialize(file, BOI);
 }
 
-void database::add_data(const vector<string>& p, int32_t pos) {
+void database::add_data(const vector<string>& p, int64_t pos) {
     string key = path(p);
     meta_data.pos[key] = pos;
     meta_data.path[pos] = key;
     int32_t par = meta_data.pos[path(parent(p))];
     meta_data.child[par].insert(pos);
-    meta_data.child[pos] = unordered_set<int32_t>();
+    meta_data.child[pos] = unordered_set<int64_t>();
 }
 
 void database::add_valid(const vector<string>& par, const node& node) {
@@ -60,7 +60,7 @@ node database::find_node(const vector<string>& p) {
     return n;
 }
 
-void database::delete_data(int32_t pos) {
+void database::delete_data(int64_t pos) {
     meta_data.count--;
     meta_data.free.push_back(pos);
     meta_data.child.erase(pos);
@@ -68,7 +68,7 @@ void database::delete_data(int32_t pos) {
     meta_data.path.erase(pos);
 }
 
-void database::del_node(int32_t pos) {
+void database::del_node(int64_t pos) {
     ofstream fout(file, BOI);
     cereal::BinaryOutputArchive obin(fout);
 

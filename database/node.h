@@ -21,7 +21,7 @@
 using namespace std;
 
 struct node {
-    int32_t id{};
+    int64_t id{};
     string name;
     unordered_map<string, attributes> attribute;
 
@@ -34,9 +34,9 @@ struct node {
     unordered_map<string, attributes> getAttr();
     void setAttr(unordered_map<string, attributes> attr);
 
-    void serialize(const string &file, int32_t position);
+    void serialize(const string &file, int64_t position);
 
-    void deserialize(const string &file, int32_t position);
+    void deserialize(const string &file, int64_t position);
 };
 
 

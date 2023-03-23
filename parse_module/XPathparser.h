@@ -7,7 +7,7 @@
 #include "structure/form.h"
 #include "parser.h"
 
-form *parse();
+form *parse(char command[2048]);
 
 
 #endif //LOW_LEVEL_PROGRAMMING3_XPATHPARSER_H

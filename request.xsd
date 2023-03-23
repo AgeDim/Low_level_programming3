@@ -8,7 +8,7 @@
     </xs:complexType>
     <xs:complexType name="body_t">
         <xs:sequence>
-            <xs:element name="nodes" type="node_t" maxOccurs="50" minOccurs="0"/>
+            <xs:element name="nodes" type="node_t" maxOccurs="100" minOccurs="0"/>
         </xs:sequence>
     </xs:complexType>
 

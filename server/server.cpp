@@ -348,7 +348,7 @@ int main(int argc, char *argv[]) {
         exit(0);
     }
     int port = atoi(argv[1]);
-    char msg[100000];
+    char msg[50000];
     sockaddr_in servAddr{};
     bzero((char *) &servAddr, sizeof(servAddr));
     servAddr.sin_family = AF_INET;
@@ -381,12 +381,13 @@ int main(int argc, char *argv[]) {
     while (true) {
         cout << "Awaiting client response..." << endl;
         memset(&msg, 0, sizeof(msg));
-        bytesRead += read(newSd, msg, 5000);
+        bytesRead = read(newSd, msg, 5000);
         if (!strcmp(msg, "exit")) {
             cout << "Client has quit the session" << endl;
             break;
         }
         std::istringstream iss(msg);
+        memset(&msg, 0, sizeof(msg));
         xml_schema::properties properties;
         properties.no_namespace_schema_location("../form.xsd");
         view_t result = *response(iss, 0, properties);
@@ -395,26 +396,25 @@ int main(int argc, char *argv[]) {
         map[""].name = "";
         map[""].schema = "request.xsd";
         std::ostringstream oss;
-
         if (operation[0] == '+') {
             response_t resp_res = insertNode(&database, &result);
             resp(oss, resp_res, map);
-            bytesWritten += write(newSd, oss.str().c_str(), strlen(oss.str().c_str()));
+            bytesWritten = write(newSd, oss.str().c_str(), strlen(oss.str().c_str()));
             cout << "insert Done!";
         } else if (operation[0] == '-') {
             response_t resp_res = deleteNode(&database, &result);
             resp(oss, resp_res, map);
-            bytesWritten += write(newSd, oss.str().c_str(), strlen(oss.str().c_str()));
+            bytesWritten = write(newSd, oss.str().c_str(), strlen(oss.str().c_str()));
             cout << "delete Done!";
         } else if (operation[0] == '?') {
             response_t resp_res = selectNode(&database, &result);
             resp(oss, resp_res, map);
-            bytesWritten += write(newSd, oss.str().c_str(), strlen(oss.str().c_str()));
+            bytesWritten = write(newSd, oss.str().c_str(), strlen(oss.str().c_str()));
             cout << "select Done!";
         } else if (operation[0] == '=') {
             response_t resp_res = updateNode(&database, &result);
             resp(oss, resp_res, map);
-            bytesWritten += write(newSd, oss.str().c_str(), strlen(oss.str().c_str()));
+            bytesWritten = write(newSd, oss.str().c_str(), strlen(oss.str().c_str()));
             cout << "update Done!";
         }
     }

@@ -54,7 +54,7 @@ op *read_operator(char **string) {
     struct op *op;
     if (number) {
         double value = 0;
-        uint8_t flt = 0;
+        uint64_t flt = 0;
         while (temp_p[len] && (temp_p[len] >= '0' && temp_p[len] <= '9' || temp_p[len] == '.')) {
             if (temp_p[len] == '.') {
                 len++;
@@ -82,7 +82,7 @@ op *read_operator(char **string) {
         }
 
     } else {
-        uint8_t field = 1;
+        uint64_t field = 1;
         if (**string == '\'' && *(*string)++) field = 0;
         temp_p = *string;
         while (temp_p[len] && (temp_p[len] >= 'a' && temp_p[len] <= 'z' || temp_p[len] >= 'A' && temp_p[len] <= 'Z')) {

@@ -4,7 +4,7 @@ using namespace std;
 
 attributes::attributes() {}
 
-attributes::attributes(const int32_t v) {
+attributes::attributes(const int64_t v) {
     this->label = INT;
     this->i = v;
 }

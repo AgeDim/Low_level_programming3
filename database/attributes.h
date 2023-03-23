@@ -27,7 +27,7 @@ struct attributes {
 
 private:
     type label;
-    int32_t i;
+    int64_t i;
     bool b{};
     float f{};
     string s;
@@ -35,7 +35,7 @@ private:
 public:
     attributes();
 
-    attributes(int32_t v);
+    attributes(int64_t v);
 
     attributes(bool v);
 

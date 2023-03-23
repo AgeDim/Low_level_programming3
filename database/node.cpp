@@ -21,7 +21,7 @@ void node::setAttr(unordered_map<string, attributes> attr) {
     this->attribute = attr;
 }
 
-void node::serialize(const string& file, int32_t position) {
+void node::serialize(const string& file, int64_t position) {
     ofstream fout(file, BOI);
     fout.seekp(META + (KB4 * position));
     cereal::BinaryOutputArchive boa(fout);
@@ -37,7 +37,7 @@ void node::serialize(const string& file, int32_t position) {
     fout.close();
 }
 
-void node::deserialize(const string& file, int32_t position) {
+void node::deserialize(const string& file, int64_t position) {
     ifstream fin(file, BOI);
     fin.seekg(META + (KB4 * position));
     cereal::BinaryInputArchive bia(fin);
