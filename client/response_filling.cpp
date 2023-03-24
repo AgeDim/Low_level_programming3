@@ -2,7 +2,7 @@
 #include "../parse_module/structure/list_level.h"
 
 
-static std::string getOp(op *op) {
+std::string getOp(op *op) {
     std::string result;
     switch (op->type) {
         case INTEGER_TYPE:
@@ -15,8 +15,7 @@ static std::string getOp(op *op) {
             result = std::to_string(op->value.boolean);
             break;
         case STRING_TYPE:
-            char *tmp = op->value.string->value;
-            for (int i = 0; i < op->value.string->size; i++) result += tmp[i];
+            result = op->value.string;
             break;
     }
     return result;
@@ -29,6 +28,11 @@ view_t fill_response(form *form) {
     struct filter_list *list_filter;
     struct comparator_list *comparator_list;
     int levels = 1;
+    std::string oper1;
+    std::string oper2;
+    std::string operation;
+    int filters_id = 1;
+    int comparator_id = 1;
     while (list_level != nullptr) {
         int any = 0;
         std::string id = "0";
@@ -57,28 +61,20 @@ view_t fill_response(form *form) {
         level t = level(levels, relation, lvl_negative, id, any);
         list_filter = list_level->filters;
         while (list_filter != nullptr) {
-            int filters_id = 1;
             int filter_negative = list_filter->value->negative;
             filter_t filters = filter_t(filters_id, filter_negative);
             comparator_list = list_filter->value->comparators;
-            int comparator_id = 1;
             while (comparator_list != nullptr) {
                 int negative_comparator = 0;
                 int field1 = comparator_list->value->op1->field;
                 int field2 = comparator_list->value->op2->field;
-                std::string oper1;
-                std::string oper2;
-                std::string operation;
-                operator_t op1 = operator_t(oper1, field1);
-                operator_t op2 = operator_t(oper2, field2);
-                comparator_t comp = comparator_t(comparator_id, negative_comparator, op1, operation, op2);
                 negative_comparator = comparator_list->value->negative;
                 operation = comparator_list->value->operation;
                 oper1 = getOp(comparator_list->value->op1);
                 oper2 = getOp(comparator_list->value->op2);
-                op1 = operator_t(oper1, field1);
-                op2 = operator_t(oper2, field2);
-                comp = comparator_t(comparator_id, negative_comparator, op1, operation, op2);
+                operator_t  op1 = operator_t(oper1, field1);
+                operator_t  op2 = operator_t(oper2, field2);
+                comparator_t comp = comparator_t(comparator_id, negative_comparator, op1, operation, op2);
                 filters.comparator().push_back(comp);
                 comparator_list = comparator_list->next;
                 comparator_id++;

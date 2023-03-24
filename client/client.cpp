@@ -9,6 +9,8 @@
 #include <netdb.h>
 #include <sys/time.h>
 #include <fstream>
+#include <chrono>
+#include <thread>
 
 #include "../parse_module/XPathparser.h"
 #include "../common/form.hxx"
@@ -48,33 +50,34 @@ int main(int argc, char *argv[]) {
     int bytesRead, bytesWritten = 0;
     struct timeval start1, end1;
     gettimeofday(&start1, nullptr);
-    std::ifstream file("../result");
+    std::ifstream file("../test");
     std::string line;
     vector<string> code;
     while (std::getline(file, line)) {
         code.push_back(line);
     }
     file.close();
-    while (1) {
-        form *tree = NULL;
+    xml_schema::namespace_infomap map;
+    while (true) {
+        form *tree = nullptr;
         if (!code.empty()) {
             string tmp = code.front();
             code.erase(code.begin());
-            char myArray[tmp.length() + 1];
+            char myArray[10000];
             strcpy(myArray, tmp.c_str());
             tree = parse(myArray);
         } else {
-            char command[2048];
+            char command[10000];
             cin >> command;
             tree = parse(command);
         }
         view_t result = fill_response(tree);
-        xml_schema::namespace_infomap map;
         map[""].name = "";
         map[""].schema = "form.xsd";
         std::ostringstream oss;
         response(oss, result, map);
         memset(&msg, 0, sizeof(msg));//clear the buffer
+        cout << oss.str() << endl;
         strcpy(msg, oss.str().c_str());
         bytesWritten = send(clientSd, (char *) &msg, strlen(msg), 0);
         cout << "Awaiting server response..." << endl;

@@ -3,15 +3,15 @@
 
 #include "form.h"
 #include "field_types.h"
-#include "types.h"
+#include "tip.h"
 #include <cstdint>
 
 struct op {
     uint64_t field;
     field_types type;
-    types value;
+    tip value;
 
-    op(uint64_t field, enum field_types type, union types value);
+    op(uint64_t field, enum field_types type, tip value);
     op();
 };
 

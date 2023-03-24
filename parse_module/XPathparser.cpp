@@ -2,7 +2,7 @@
 #include "XPathparser.h"
 
 using namespace std;
-form *parse(char command[2048]) {
+form *parse(char command[10000]) {
     char *for_parse;
     enum states current_state;
     for_parse = command + 1;

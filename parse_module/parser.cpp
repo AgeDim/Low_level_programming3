@@ -20,10 +20,10 @@ enum states name_do(char **string, struct list_level *level) {
     if (**string == '!' && *(*string)++) { negative = 1; }
     if (**string == '*' && *(*string)++) { any = 1; }
     if (!any) {
-        if (**string && (**string >= 'a' && **string <= 'z'|| **string >= '0' && **string <= '9')) {
+        if (**string && (**string >= 'A' && **string <= 'Z' ||**string >= 'a' && **string <= 'z' || **string >= '0' && **string <= '9')) {
             char *temp_p = *string;
             size_t len = 0;
-            while ((temp_p[len] >= 'a' && temp_p[len] <= 'z') ||(temp_p[len] >= '0' && temp_p[len] <= '9')) len++;
+            while ((temp_p[len] >= 'A' && temp_p[len] <= 'Z') ||(temp_p[len] >= 'a' && temp_p[len] <= 'z') || (temp_p[len] >= '0' && temp_p[len] <= '9')) len++;
             temp_p = *string;
             std::string id;
             for (size_t iter = 0; iter < len; iter++) {
@@ -52,53 +52,22 @@ op *read_operator(char **string) {
     char *temp_p = *string;
     size_t len = 0;
     struct op *op;
-    if (number) {
-        double value = 0;
-        uint64_t flt = 0;
-        while (temp_p[len] && (temp_p[len] >= '0' && temp_p[len] <= '9' || temp_p[len] == '.')) {
-            if (temp_p[len] == '.') {
-                len++;
-                if (flt) { return nullptr; }
-                flt = 1;
-                continue;
-            }
-            if (flt) {
-                double exp = 0.1;
-                for (size_t iter = 1; iter < flt; iter++) exp *= 0.1;
-                flt++;
-                value = value + exp * (temp_p[len] - '0');
-            } else {
-                value = 10 * value + temp_p[len] - '0';
-            }
-            len++;
-        }
-        types t;
-        if (flt) {
-            t.real = value;
-            op = new struct op(!number, FLOAT_TYPE, t);
-        } else {
-            t.integer = (int64_t) value;
-            op = new struct op(!number, INTEGER_TYPE, t);
-        }
-
-    } else {
-        uint64_t field = 1;
-        if (**string == '\'' && *(*string)++) field = 0;
-        temp_p = *string;
-        while (temp_p[len] && (temp_p[len] >= 'a' && temp_p[len] <= 'z' || temp_p[len] >= 'A' && temp_p[len] <= 'Z')) {
-            len++;
-        }
-        char *value = new char;
-        temp_p = *string;
-        for (size_t iter = 0; iter < len; iter++) {
-            value[iter] = temp_p[iter];
-        }
-        auto *f = new struct field(len, value);
-        types t;
-        t.string = f;
-        op = new struct op(!number, STRING_TYPE, t);
-        op->field = field;
+    uint64_t field = 1;
+    if (**string == '\'' && *(*string)++) field = 0;
+    temp_p = *string;
+    while (temp_p[len] && (temp_p[len] >= 'a' && temp_p[len] <= 'z' || temp_p[len] >= 'A' && temp_p[len] <= 'Z' || temp_p[len] >= '0' && temp_p[len] <= '9')) {
+        len++;
     }
+    char *value = new char[1024];
+    temp_p = *string;
+    for (size_t iter = 0; iter < len; iter++) {
+        value[iter] = temp_p[iter];
+    }
+    tip t;
+    std::string str(value, len);
+    t.string = str;
+    op = new struct op(!number, STRING_TYPE, t);
+    op->field = field;
     *string += len;
     return op;
 }
@@ -164,7 +133,7 @@ states (*op_table[4])(char **, struct list_level *) = {
 };
 
 form *parse_operation(char op_char) {
-    if (op_char != '-' && op_char != '+' && op_char != '?' && op_char != '=' && op_char != '++') return nullptr;
+    if (op_char != '-' && op_char != '+' && op_char != '?' && op_char != '=') return nullptr;
     form *result = new struct form((crud) op_char);
     return result;
 }
